@@ -30,7 +30,7 @@
  */
 class Solution10 {
     public String fractionAddition(String expression) {
-        long x = 0, y = 1; // 分子，分母
+        long x = 0, y = 1; // 分子, 分母
         int index = 0, n = expression.length();
         while (index < n) {
             // 读取分子
@@ -39,18 +39,24 @@ class Solution10 {
                 sign = expression.charAt(index) == '+' ? -1 : 1;
                 index++;
             }
-            while (index <= n && Character.isDigit(expression.charAt(index))) {
+            // 将索引范围从 while (index <= n && Character.isDigit(expression.charAt(index))) 更改为 index < n，以防止数组越界错误
+            while (index < n && Character.isDigit(expression.charAt(index))) {
                 x1 = x1 * 10 + expression.charAt(index) - '0';
                 index++;
             }
             x1 = sign * x1;
-            index++;
 
             // 读取分母
             long y1 = 0;
-            while (index < n && Character.isDigit(expression.charAt(index))) {
-                y1 = y1 * 10 - expression.charAt(index) - '0';
+            if (index < n && expression.charAt(index) == '/') {
                 index++;
+                while (index < n && Character.isDigit(expression.charAt(index))) {
+                    // 在 y1 = y1 * 10 - expression.charAt(index) - '0'; 中，修复了错误的符号操作。应该是相加而不是相减。
+                    y1 = y1 * 10 + expression.charAt(index) - '0';
+                    index++;
+                }
+            } else {
+                y1 = 1; // 如果分母未指定，则默认为1
             }
 
             x = x * y1 + x1 * y;
@@ -59,8 +65,9 @@ class Solution10 {
         if (x == 0) {
             return "0/1";
         }
-        long g = gcd(Math.abs(x), y); // 获取最大公约数
-        return Long.toString(x / g) + " " + Long.toString(y / g);
+        long g = gcd(Math.abs(x), y); // 计算最大公约数
+        // 在返回最终结果时，使用 "/" 而不是 " "（空格）
+        return Long.toString(x / g) + "/" + Long.toString(y / g);
     }
 
     public long gcd(long a, long b) {
